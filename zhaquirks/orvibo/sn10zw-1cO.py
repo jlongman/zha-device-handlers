@@ -2,15 +2,14 @@
 import math
 
 from zigpy.profiles import zha
-from zigpy.quirks import CustomCluster
 from zigpy.zcl.clusters.general import Basic, Identify, PowerConfiguration, Scenes, Groups
-from zigpy.zcl.clusters.measurement import IlluminanceMeasurement
 from zigpy.zcl.clusters.security import IasZone
 
-from zhaquirks.xiaomi import BasicCluster
 from . import (
     ORVIBO,
     OrviboCustomDevice,
+    MotionCluster,
+    OccupancyCluster,
 )
 from .. import Bus, PowerConfigurationCluster
 from ..const import (
@@ -24,6 +23,7 @@ from ..const import (
 )
 
 ORVIBO_CLUSTER_ID = 0xFFFF
+
 #  Discovered endpoint information:
 #   <Optional endpoint=1 profile=260 device_type=1026 device_version=1
 #       input_clusters=[0, 3, 1280, 65535, 1]
@@ -65,6 +65,8 @@ ORVIBO_CLUSTER_ID = 0xFFFF
 #   "model": "895a2d80097f4ae2b2d40500d5e03dcc",
 #   "class": "zigpy.device.Device"
 # }
+
+
 class MotionOrvibo(OrviboCustomDevice):
     """Custom device representing aqara body sensors."""
 
@@ -79,7 +81,7 @@ class MotionOrvibo(OrviboCustomDevice):
         ENDPOINTS: {
             1: {
                 PROFILE_ID: zha.PROFILE_ID,
-                DEVICE_TYPE: zha.DeviceType.OCCUPANCY_SENSOR,
+                DEVICE_TYPE: zha.DeviceType.IAS_ZONE,
                 INPUT_CLUSTERS: [
                     Basic.cluster_id,
                     PowerConfiguration.cluster_id,
@@ -99,14 +101,15 @@ class MotionOrvibo(OrviboCustomDevice):
     }
 
     replacement = {
-        SKIP_CONFIGURATION: True,
+        # SKIP_CONFIGURATION: True,
         ENDPOINTS: {
             1: {
                 INPUT_CLUSTERS: [
-                    BasicCluster,
+                    Basic.cluster_id,
                     PowerConfigurationCluster,
                     Identify.cluster_id,
-                    IasZone.cluster_id,
+                    OccupancyCluster,
+                    MotionCluster,
                     ORVIBO_CLUSTER_ID,
                 ],
                 OUTPUT_CLUSTERS: [
@@ -119,4 +122,3 @@ class MotionOrvibo(OrviboCustomDevice):
             }
         },
     }
-
